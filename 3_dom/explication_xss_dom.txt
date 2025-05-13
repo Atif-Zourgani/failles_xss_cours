@@ -1,0 +1,77 @@
+QU'EST-CE QU'UNE FAILLE XSS BASÉE SUR LE DOM ?
+
+Une faille XSS basée sur le DOM (Document Object Model) est une vulnérabilité où le code malveillant s'exécute à cause du traitement du contenu par le JavaScript côté client, sans jamais passer par le serveur.
+
+IMAGINEZ CETTE SITUATION :
+Vous êtes sur une page web qui affiche un message personnalisé en fonction de l'URL, grâce à du JavaScript.
+Exemple : https://monsite.com/welcome.html#message=Bonjour
+Le JavaScript lit le fragment d'URL (après le #) et l'affiche sur la page.
+
+MAINTENANT, IMAGINEZ CE SCÉNARIO MALVEILLANT :
+Quelqu'un partage ce lien :
+https://monsite.com/welcome.html#message=<img src=x onerror=alert('XSS')>
+Le JavaScript de la page insère ce contenu dans le HTML sans vérification, et le code s'exécute dans le navigateur !
+
+COMMENT ÇA MARCHE ?
+1. L'attaquant crée un lien avec du code malveillant dans l'URL (souvent après le # ou le ?)
+2. Le JavaScript de la page récupère ce contenu et l'insère dans le DOM
+3. Le navigateur exécute le code malveillant
+
+POURQUOI C'EST PARTICULIER ?
+- Le code malveillant ne passe jamais par le serveur
+- Les protections côté serveur (PHP, base de données) sont inefficaces
+- L'attaque dépend uniquement du code JavaScript côté client
+
+EXEMPLE CONCRET :
+Dans le code JavaScript :
+```js
+var msg = location.hash.substring(9); // récupère ce qu'il y a après #message=
+document.getElementById('message').innerHTML = msg; // DANGEREUX !
+```
+Si l'URL est :
+https://monsite.com/welcome.html#message=<script>alert('XSS')</script>
+Le script s'exécutera !
+
+DIFFÉRENTES FAÇONS D'INJECTER DU CODE :
+1. Via le hash (#) dans l'URL
+2. Via les paramètres de l'URL (?param=...)
+3. Via le stockage local (localStorage, sessionStorage)
+4. Via des données manipulées par JavaScript (ex : innerHTML, document.write)
+
+COMMENT SE PROTÉGER ?
+1. Ne jamais insérer directement du contenu non contrôlé dans le DOM avec innerHTML
+2. Utiliser textContent ou innerText pour afficher du texte
+3. Valider et nettoyer toutes les données manipulées par JavaScript
+4. Utiliser des frameworks qui protègent contre le XSS (React, Vue, Angular)
+
+EXEMPLE DE PROTECTION :
+Avant :
+document.getElementById('message').innerHTML = msg; // Dangereux !
+Après :
+document.getElementById('message').textContent = msg; // Sécurisé !
+
+EN RÉSUMÉ :
+Une faille XSS basée sur le DOM est une vulnérabilité qui exploite le JavaScript côté client pour exécuter du code malveillant, sans jamais passer par le serveur. Il faut donc être très vigilant sur la façon dont on manipule le DOM avec des données dynamiques.
+
+EXEMPLE D'ATTAQUE RÉELLE :
+1. L'attaquant trouve une page qui affiche le contenu de l'URL avec innerHTML
+2. Il crée un lien : https://monsite.com/page.html#msg=<img src=x onerror=alert('XSS')>
+3. Il partage ce lien sur un forum ou par email
+4. Toute personne qui clique sur ce lien exécute le code malveillant dans SON navigateur
+5. Le code peut :
+   - Voler ses cookies de session
+   - Envoyer ses données à l'attaquant
+   - Modifier la page qu'il voit
+   - Rediriger vers un site malveillant 
+
+COMMENT SE PROTÉGER DES FAILLES XSS DOM ?
+
+Pour se protéger des failles XSS basées sur le DOM, il faut :
+- Ne jamais utiliser innerHTML, document.write ou eval avec des données non contrôlées (venant de l'utilisateur, de l'URL, du hash, du localStorage, etc.).
+- Toujours utiliser textContent ou innerText pour afficher du texte dynamique dans la page.
+- Si tu dois vraiment insérer du HTML, utilise une bibliothèque de nettoyage comme DOMPurify pour filtrer le contenu.
+- Valide et nettoie toutes les données dynamiques manipulées par JavaScript.
+- Utilise une Content Security Policy (CSP) pour limiter l'exécution de scripts non autorisés.
+- Privilégie les frameworks modernes (React, Vue, Angular) qui échappent automatiquement les données.
+
+En résumé : toute donnée manipulée côté client doit être considérée comme potentiellement dangereuse et traitée avec précaution avant d'être insérée dans le DOM ! 

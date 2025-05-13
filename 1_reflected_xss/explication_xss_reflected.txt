@@ -1,0 +1,88 @@
+QU'EST-CE QU'UNE FAILLE XSS RÉFLÉCHIE ?
+
+Une faille XSS (Cross-Site Scripting) réfléchie est comme un "miroir malveillant" sur un site web.
+
+IMAGINEZ CETTE SITUATION :
+Vous êtes sur un site de recherche. Vous tapez "bonjour" dans la barre de recherche.
+Le site vous répond : "Résultats pour : bonjour"
+
+MAINTENANT, IMAGINEZ CE SCÉNARIO MALVEILLANT :
+Au lieu de taper "bonjour", quelqu'un tape : <script>alert('piraté!')</script>
+Le site, sans protection, afficherait : "Résultats pour : <script>alert('piraté!')</script>"
+Et le code s'exécuterait dans votre navigateur !
+
+COMMENT ÇA MARCHE ?
+1. L'attaquant crée un lien malveillant
+2. Vous cliquez sur ce lien
+3. Le site "réfléchit" (renvoie) le code malveillant
+4. Votre navigateur exécute ce code
+
+POURQUOI C'EST DANGEREUX ?
+- Vol de cookies (vol de session)
+- Vol de données personnelles
+- Redirection vers des sites malveillants
+- Modification de l'apparence du site
+
+EXEMPLE CONCRET :
+Lien normal : https://monsite.com/recherche?q=bonjour
+Lien malveillant : https://monsite.com/recherche?q=<script>alert('piraté!')</script>
+
+DIFFÉRENTES FAÇONS D'INJECTER DU CODE :
+1. Injection directe avec <script> :
+   <script>alert('piraté!')</script>
+
+2. Injection via une image (plus subtile) :
+   <img src="x" onerror="alert('XSS')">
+   Cette méthode est intéressante car :
+   - Elle utilise un événement (onerror) qui se déclenche quand l'image ne peut pas être chargée
+   - Elle peut contourner certaines protections qui bloquent les balises <script>
+   - Elle montre que les attaquants peuvent être créatifs dans leurs méthodes
+
+3. Injection via les attributs HTML :
+   <div onmouseover="alert('XSS')">Passez la souris ici</div>
+
+COMMENT SE PROTÉGER ?
+1. Échapper les caractères spéciaux (< devient &lt;)
+2. Valider les entrées utilisateur
+3. Utiliser des en-têtes de sécurité
+4. Nettoyer le HTML
+
+PROTECTION DES FRAMEWORKS MODERNES :
+Les frameworks modernes (React, Symfony, Express, etc.) offrent une protection de base contre les XSS :
+- Échappement automatique des données
+- Headers de sécurité par défaut
+- Validation des entrées intégrée
+Mais attention : ces protections ne sont pas infaillibles et il faut toujours suivre les bonnes pratiques !
+
+EXEMPLE DE PROTECTION :
+Avant : echo $recherche;  // Dangereux !
+Après : echo htmlspecialchars($recherche);  // Sécurisé !
+
+IMPORTANT : COMMENT ATTEINDRE D'AUTRES UTILISATEURS ?
+L'attaquant ne modifie pas directement votre navigateur. Il crée un lien malveillant qu'il peut :
+- Envoyer par email
+- Poster sur un forum
+- Partager sur les réseaux sociaux
+- Intégrer dans un site web
+
+Exemple de scénario d'attaque :
+1. L'attaquant crée un lien : https://monsite.com/recherche?q=<script>volerCookies()</script>
+2. Il envoie ce lien à 1000 personnes par email
+3. Quand quelqu'un clique sur le lien, le code s'exécute dans SON navigateur
+4. Le code peut voler ses cookies, ses données, etc.
+
+EN RÉSUMÉ :
+Une faille XSS réfléchie, c'est comme un miroir qui, au lieu de simplement refléter votre image,
+réfléchirait et exécuterait du code malveillant. C'est pourquoi il faut toujours "nettoyer"
+ce que les utilisateurs envoient au site avant de l'afficher.
+
+EXEMPLE D'ATTAQUE RÉELLE :
+1. L'attaquant trouve un site vulnérable aux XSS
+2. Il crée un lien avec du code malveillant
+3. Il envoie ce lien à des utilisateurs
+4. Quand un utilisateur clique, le code s'exécute dans SON navigateur
+5. Le code peut :
+   - Voler ses cookies de session
+   - Envoyer ses données à l'attaquant
+   - Modifier la page qu'il voit
+   - Rediriger vers un site malveillant

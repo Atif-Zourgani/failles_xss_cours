@@ -1,0 +1,82 @@
+QU'EST-CE QU'UNE FAILLE XSS STOCKÉE ?
+
+Une faille XSS stockée (ou persistante) est comme un "piège permanent" sur un site web.
+
+IMAGINEZ CETTE SITUATION :
+Vous êtes sur un forum. Vous postez un message normal : "Bonjour tout le monde !"
+Le message est stocké dans la base de données et affiché à tous les visiteurs.
+
+MAINTENANT, IMAGINEZ CE SCÉNARIO MALVEILLANT :
+Au lieu d'un message normal, quelqu'un poste : <script>alert('piraté!')</script>
+Le message est stocké dans la base de données et CHAQUE visiteur qui voit ce message
+aura le code malveillant exécuté dans son navigateur !
+
+COMMENT ÇA MARCHE ?
+1. L'attaquant injecte du code malveillant
+2. Le code est stocké dans la base de données
+3. Chaque visiteur qui voit le contenu infecté
+4. Le code s'exécute dans leur navigateur
+
+POURQUOI C'EST PLUS DANGEREUX QUE LE XSS RÉFLÉCHI ?
+- Le code malveillant reste stocké indéfiniment
+- Tous les visiteurs sont affectés automatiquement
+- Pas besoin de cliquer sur un lien spécifique
+- L'attaque peut toucher des milliers d'utilisateurs
+
+EXEMPLE CONCRET :
+Système de commentaires vulnérable :
+1. L'attaquant poste un commentaire malveillant
+2. Le commentaire est stocké dans la base de données
+3. Chaque visiteur qui voit le commentaire est infecté
+4. Le code peut voler leurs cookies, données, etc.
+
+DIFFÉRENTES FAÇONS D'INJECTER DU CODE :
+1. Injection directe dans les commentaires :
+   <script>alert('XSS')</script>
+
+2. Injection via une image dans un profil :
+   <img src="x" onerror="alert('XSS')">
+
+3. Injection dans un champ de profil :
+   "><script>alert('XSS')</script>
+
+COMMENT SE PROTÉGER ?
+1. Échapper les caractères spéciaux (< devient &lt;)
+2. Valider les entrées utilisateur
+3. Utiliser des en-têtes de sécurité
+4. Nettoyer le HTML
+5. Utiliser des requêtes préparées pour la base de données
+
+PROTECTION DES FRAMEWORKS MODERNES :
+Les frameworks modernes (React, Symfony, Express, etc.) offrent une protection de base :
+- Échappement automatique des données
+- Headers de sécurité par défaut
+- Validation des entrées intégrée
+- ORM avec échappement automatique
+Mais attention : ces protections ne sont pas infaillibles !
+
+EXEMPLE DE PROTECTION :
+Avant : 
+$query = "INSERT INTO comments (text) VALUES ('$comment')";  // Dangereux !
+
+Après : 
+$stmt = $pdo->prepare("INSERT INTO comments (text) VALUES (?)");
+$stmt->execute([$comment]);  // Sécurisé !
+
+EN RÉSUMÉ :
+Une faille XSS stockée est plus dangereuse qu'une XSS réfléchie car :
+- Le code malveillant persiste dans la base de données
+- Tous les visiteurs sont potentiellement affectés
+- L'attaque peut durer des mois si non détectée
+- Les dégâts peuvent être beaucoup plus importants
+
+EXEMPLE D'ATTAQUE RÉELLE :
+1. L'attaquant trouve un site vulnérable aux XSS stockés
+2. Il poste un commentaire malveillant
+3. Le commentaire est stocké dans la base de données
+4. Chaque visiteur qui voit le commentaire est infecté
+5. Le code peut :
+   - Voler leurs cookies de session
+   - Envoyer leurs données à l'attaquant
+   - Modifier la page qu'ils voient
+   - Rediriger vers un site malveillant 
