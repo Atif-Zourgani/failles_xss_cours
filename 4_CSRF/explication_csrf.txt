@@ -48,5 +48,24 @@ Côté serveur :
 - Générer un token unique et le stocker en session.
 - Vérifier que le token reçu correspond à celui en session avant d'exécuter l'action.
 
+PROTECTION DANS LES FRAMEWORKS MODERNES :
+
+- **React** :
+  - React protège surtout contre le XSS, mais pour le CSRF, il faut utiliser les protections du backend (API, serveur).
+  - Si tu utilises un backend (Express, Symfony, etc.), c'est lui qui doit générer et vérifier les tokens CSRF.
+  - Si tu utilises des cookies pour l'authentification, il est recommandé d'utiliser le mode SameSite=strict ou SameSite=lax pour limiter les risques de CSRF.
+
+- **Symfony (PHP)** :
+  - Symfony intègre une protection CSRF native pour les formulaires.
+  - Chaque formulaire peut inclure automatiquement un token CSRF, qui sera vérifié à la soumission.
+  - Il suffit d'activer l'option CSRF dans le FormBuilder ou d'utiliser le composant Security/CSRF.
+
+- **Express (Node.js)** :
+  - Express ne protège pas nativement contre le CSRF, mais il existe des middlewares comme `csurf` qui ajoutent une protection CSRF.
+  - Le middleware génère un token à chaque session ou formulaire, et vérifie sa présence à chaque requête POST/PUT/DELETE.
+
+En résumé :
+- Les frameworks modernes facilitent la mise en place de la protection CSRF, mais il faut toujours vérifier que cette protection est activée et bien utilisée dans tes applications ! 
+
 EN RÉSUMÉ :
 Une faille CSRF permet à un site malveillant de te faire exécuter une action sur un autre site où tu es connecté, sans que tu t'en rendes compte. La meilleure protection est d'utiliser des jetons CSRF et de toujours vérifier l'origine des requêtes sensibles. 
