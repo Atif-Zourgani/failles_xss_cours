@@ -1,0 +1,52 @@
+QU'EST-CE QU'UNE FAILLE CSRF ?
+
+Une faille CSRF (Cross-Site Request Forgery, ou falsification de requête inter-sites) permet à un site malveillant de faire exécuter à un utilisateur connecté une action à son insu sur un autre site.
+
+IMAGINEZ CETTE SITUATION :
+Tu es connecté à ton compte sur un site de confiance (banque, forum, webmail...).
+Tu visites un autre site (malveillant) dans un nouvel onglet.
+Ce site malveillant envoie une requête vers le site de confiance, en utilisant tes cookies de session (car tu es déjà connecté).
+Le site de confiance croit que la requête vient de toi et exécute l'action !
+
+COMMENT ÇA MARCHE ?
+1. L'utilisateur est connecté sur un site de confiance.
+2. Il visite un site malveillant dans un autre onglet.
+3. Le site malveillant envoie une requête (formulaire caché, image, script...) vers le site de confiance.
+4. Le navigateur envoie automatiquement les cookies de session.
+5. Le site de confiance exécute l'action, pensant qu'elle vient de l'utilisateur.
+
+EXEMPLE CONCRET :
+Supposons que pour changer ton email, il suffit d'appeler :
+https://monsite.com/change_email.php?email=pirate@evil.com
+Un site malveillant peut inclure :
+<img src="https://monsite.com/change_email.php?email=pirate@evil.com" style="display:none">
+Quand tu visites ce site, ton navigateur envoie la requête avec tes cookies de session, et ton email est changé !
+
+POURQUOI C'EST DANGEREUX ?
+- L'utilisateur ne voit rien, tout se passe en arrière-plan.
+- L'attaque fonctionne tant que tu es connecté.
+- Elle peut être utilisée pour :
+  - Changer ton mot de passe ou ton email
+  - Effectuer des achats
+  - Envoyer des messages à ta place
+  - Supprimer des données
+
+COMMENT SE PROTÉGER ?
+1. Utiliser des jetons CSRF (token unique dans chaque formulaire ou requête sensible).
+2. Vérifier l'origine des requêtes (en-tête Origin ou Referer).
+3. Limiter les actions sensibles aux requêtes POST (éviter les modifications via GET).
+4. Déconnexion automatique après une période d'inactivité.
+
+EXEMPLE DE PROTECTION :
+Dans le formulaire HTML :
+<form method="POST" action="change_email.php">
+  <input type="email" name="email">
+  <input type="hidden" name="csrf_token" value="abc123">
+  <button type="submit">Changer l'email</button>
+</form>
+Côté serveur :
+- Générer un token unique et le stocker en session.
+- Vérifier que le token reçu correspond à celui en session avant d'exécuter l'action.
+
+EN RÉSUMÉ :
+Une faille CSRF permet à un site malveillant de te faire exécuter une action sur un autre site où tu es connecté, sans que tu t'en rendes compte. La meilleure protection est d'utiliser des jetons CSRF et de toujours vérifier l'origine des requêtes sensibles. 
